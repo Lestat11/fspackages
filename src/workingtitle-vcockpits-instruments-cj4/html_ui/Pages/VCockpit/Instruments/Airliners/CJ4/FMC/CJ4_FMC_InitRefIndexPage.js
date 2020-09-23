@@ -612,8 +612,15 @@ class CJ4_FMC_InitRefIndexPage {
             if (databaseWaypointType == "A") {
                 CJ4_FMC_InitRefIndexPage.ShowPage19(fmc, databaseWaypoint)
             }
-            
-
+            else if (databaseWaypointType == "V") {
+                CJ4_FMC_InitRefIndexPage.ShowPage20(fmc, databaseWaypoint)
+            }
+            else if (databaseWaypointType == "W") {
+                CJ4_FMC_InitRefIndexPage.ShowPage21(fmc, databaseWaypoint)
+            }
+            else if (databaseWaypointType == "N") {
+                CJ4_FMC_InitRefIndexPage.ShowPage30(fmc, databaseWaypoint)
+            }
 
         };
 
@@ -668,6 +675,12 @@ class CJ4_FMC_InitRefIndexPage {
         let longestRunwayElevation = new Number(longestRunway.elevation * 3.28);
         let longestRunwayLengthFeet = new Number(longestRunwayLength * 3.28);
 
+        //let nearestVorIcao = databaseWaypoint.data.nearestVorICAO;
+        //let magneticVariation = databaseWaypoint.infos.data.magneticVariation;
+        //console.log("nearestVorIcao: " + nearestVorIcao);
+        console.table(databaseWaypoint.infos);
+
+
         fmc.setTemplate([
             ["DATABASE[color]blue"],
             ["IDENT[color]blue", "LONG RWY[color]blue"],
@@ -685,20 +698,44 @@ class CJ4_FMC_InitRefIndexPage {
         ]);
         fmc.updateSideButtonActiveStatus();
     }
-    static ShowPage20(fmc) { //DATABASE VOR
+    static ShowPage20(fmc, databaseWaypoint) { //DATABASE VOR
         fmc.clearDisplay();
+        let simMagVar = databaseWaypoint.infos.magneticVariation.toFixed(0)
+        let magVar = (simMagVar > 180) ? simMagVar - 360 + "E" : (simMagVar < 180) ? simMagVar + "W" : 0;
+        let vorType = databaseWaypoint.infos.type == 1 ? "VOR"
+            :databaseWaypoint.infos.type == 2 ? "VOR-DME"
+            :databaseWaypoint.infos.type == 3 ? "VOR-DME"
+            :databaseWaypoint.infos.type == 4 ? "VORTAC"
+            :databaseWaypoint.infos.type == 5 ? "VORTAC"
+            :databaseWaypoint.infos.type == 6 ? "VOR"
+            : "VOR";
+        let vorClass = databaseWaypoint.infos.vorClass == 1 ? "Terminal"
+            :databaseWaypoint.infos.vorClass == 2 ? "Low Alt"
+            :databaseWaypoint.infos.vorClass == 3 ? "High Alt"
+            :databaseWaypoint.infos.vorClass == 4 ? "ILS"
+            :databaseWaypoint.infos.vorClass == 5 ? "VOT"
+            : "Unknown";
+        let vorWeather = databaseWaypoint.infos.weatherBroadcast == 0 ? "No"
+            :"Yes"
+        let vorCoordinatesAlt = new String(databaseWaypoint.infos.coordinates);
+        let vorIndex = vorCoordinatesAlt.indexOf("alt");
+        let vorCoordinates = vorCoordinatesAlt.substring(0, vorIndex);
+        console.log("vorIndex:" + vorIndex);
+        console.log("vorCoordinatesAlt:" + vorCoordinatesAlt);
+
+        
         fmc.setTemplate([
             ["DATABASE[color]blue"],
             ["IDENT[color]blue", "FREQ[color]blue"],
+            [databaseWaypoint.infos.ident + "", databaseWaypoint.infos.frequencyMHz.toFixed(2) + ""],
+            ["TYPE[color]blue", "MAG VAR[color]blue"],
+            [vorType + "", magVar + ""],
+            ["CLASS[color]blue", "WEATHER[color]blue"],
+            [vorClass + "", vorWeather + ""],
+            ["COORDINATES[color]blue"],
+            [vorCoordinates + ""],
             [""],
-            ["VOR[color]blue", "MAG VAR[color]blue"],
-            [""],
-            ["DME[color]blue"],
-            [""],
-            ["NAME[color]blue", "ELEV[color]blue"],
-            ["<FEET/METERS"],
-            ["------------Pilot[color]blue"],
-            ["", "WPT LIST>"],
+            ["", ""],
             [""],
             ["<INDEX", "DEFINE WPT>"]
         ]);
