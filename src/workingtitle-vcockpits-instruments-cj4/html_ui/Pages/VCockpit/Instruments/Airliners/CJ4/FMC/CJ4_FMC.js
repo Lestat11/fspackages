@@ -37,7 +37,7 @@ class CJ4_FMC extends FMCMainDisplay {
         this._fpHasChanged = false;
         this._activatingDirectTo = false;
         this._templateRenderer = undefined;
-        this._msg = "";		
+        this._msg = "";
     }
     get templateID() { return "CJ4_FMC"; }
 
@@ -87,42 +87,44 @@ class CJ4_FMC extends FMCMainDisplay {
                 this.onExecPage();
             }
             else {
-                console.log("onExec Else");
+                // console.log("onExec Else");
                 this._isRouteActivated = false;
-                console.log("onExec else this._isRouteActivated = false");
+                // console.log("onExec else this._isRouteActivated = false");
                 this.fpHasChanged = false;
-                console.log("onExec else this.fpHasChanged = false");
+                // console.log("onExec else this.fpHasChanged = false");
                 this.messageBox = "";
-                console.log("onExec else this.messageBox.innerHTML");
+                // console.log("onExec else this.messageBox.innerHTML");
                 this._activatingDirectTo = false;
-                console.log("onExec else this._activatingDirectTo = false");
+                // console.log("onExec else this._activatingDirectTo = false");
             }
         };
         this.onExecPage = undefined;
         this.onExecDefault = () => {
             if (this.getIsRouteActivated() && !this._activatingDirectTo) {
-                console.log("running this.getIsRouteActivated() && !this._activatingDirectTo");
+                // console.log("running this.getIsRouteActivated() && !this._activatingDirectTo");
                 this.insertTemporaryFlightPlan(() => {
                     this._isRouteActivated = false;
                     SimVar.SetSimVarValue("L:FMC_EXEC_ACTIVE", "number", 0);
-                    console.log("done with onExec insert temp");
+                    // console.log("done with onExec insert temp");
                     this.fpHasChanged = false;
-                    console.log("this.fpHasChanged = false");
+                    // console.log("this.fpHasChanged = false");
                     this.messageBox = "";
-                    this.refreshPageCallback();
+                    if (this.refreshPageCallback) {
+                        this.refreshPageCallback();
+                    }
                 });
             }
             else {
-                console.log("running onExecDefault else");
+                // console.log("running onExecDefault else");
                 this.fpHasChanged = false;
-                console.log("fpHasChanged = false");
+                // console.log("fpHasChanged = false");
                 this.messageBox = "";
                 this._isRouteActivated = false;
                 SimVar.SetSimVarValue("L:FMC_EXEC_ACTIVE", "number", 0);
                 if (this.refreshPageCallback) {
                     this._activatingDirectTo = false;
                     this.fpHasChanged = false;
-                    console.log("Else refreshPageCallback");
+                    // console.log("Else refreshPageCallback");
                     this.refreshPageCallback();
                 }
             }
@@ -202,7 +204,7 @@ class CJ4_FMC extends FMCMainDisplay {
         return false;
     }
 
-    setMsg(value = ""){
+    setMsg(value = "") {
         this._msg = value;
         this._templateRenderer.setMsg(value);
     }
@@ -448,10 +450,21 @@ class CJ4_FMC extends FMCMainDisplay {
 
             const fuelUsed = (this.previousLeftFuelQty + this.previousRightFuelQty) - (leftFuelQty + rightFuelQty);
             const estFuelFlow = fuelUsed / deltaTimeHours;
+<<<<<<< HEAD
             if (fuelUsed !== 0) {
                 const mach = SimVar.GetSimVarValue("AIRSPEED MACH", "mach");
                 const tsfc = (1 + (.5 * mach)) * 0.56;
 
+=======
+
+            const mach = SimVar.GetSimVarValue("AIRSPEED MACH", "mach");
+            const tsfc = (1 + (.56 * mach)) * 0.58;
+
+            SimVar.SetSimVarValue("L:CJ4 FUEL FLOW:1", "pounds per hour", thrustLeft * tsfc);
+            SimVar.SetSimVarValue("L:CJ4 FUEL FLOW:2", "pounds per hour", thrustRight * tsfc);
+
+            if (fuelUsed > 0 && fuelUsed < 1) {
+>>>>>>> 910178e921a9369f33d0f55b0169f32b42f9b399
                 const targetFuelFlow = (thrustLeft + thrustRight) * tsfc;
                 const correctionFactor = targetFuelFlow / estFuelFlow;
                 
@@ -464,12 +477,22 @@ class CJ4_FMC extends FMCMainDisplay {
                 SimVar.SetSimVarValue("FUEL TANK LEFT MAIN QUANTITY", "gallons", leftFuelQtyGals + leftAdjustment);
                 SimVar.SetSimVarValue("FUEL TANK RIGHT MAIN QUANTITY", "gallons", rightFuelQtyGals + rightAdjustment);
 
+<<<<<<< HEAD
                 SimVar.SetSimVarValue("L:CJ4 FUEL FLOW:1", "pounds per hour", thrustLeft * tsfc);
                 SimVar.SetSimVarValue("L:CJ4 FUEL FLOW:2", "pounds per hour", thrustRight * tsfc);
 
                 this.previousLeftFuelQty = (leftFuelQtyGals + leftAdjustment) * fuelWeight;
                 this.previousRightFuelQty = (rightFuelQtyGals + rightAdjustment) * fuelWeight;
             }
+=======
+                this.previousLeftFuelQty = (leftFuelQtyGals + leftAdjustment) * fuelWeight;
+                this.previousRightFuelQty = (rightFuelQtyGals + rightAdjustment) * fuelWeight;
+            }
+            else {
+                this.previousLeftFuelQty = leftFuelQty;
+                this.previousRightFuelQty = rightFuelQty;
+            }
+>>>>>>> 910178e921a9369f33d0f55b0169f32b42f9b399
         
             this.previousTime = currentTime;
         }
